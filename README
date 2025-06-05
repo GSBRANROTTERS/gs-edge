@@ -24,7 +24,7 @@ Buzzer (pino 12): Emite som de alarme nos níveis mais graves (vermelho e roxo).
 
 Display LCD 16x2 (I2C): Exibe em tempo real o nível de água e o status correspondente.
 
-EEPROM interna: Armazena logs com timestamp, distância medida e status de risco.
+EEPROM interna (memória não volátil): Armazena logs com timestamp, distância medida e status de risco.
 
 Serial Monitor: Apresenta o status continuamente para fins de debug e análise.
 
@@ -53,6 +53,18 @@ A EEPROM registra os dados com estrutura (timestamp, distância, status) para hi
 
 Os dados são exibidos na serial em tempo real.
 
+🚀 Diferenciais do Projeto
+Este projeto se destaca principalmente pelo uso inteligente da memória EEPROM (não volátil) como mecanismo de registro histórico persistente dos dados de nível de água.
+
+Por que isso é um diferencial?
+❌ Diferente de muitos sistemas básicos que apenas exibem dados em tempo real, este projeto armazena cada medição significativa na memória, mesmo após desligamentos de energia.
+
+✅ Isso permite análise posterior do comportamento do nível da água ao longo do tempo, possibilitando estudos estatísticos, auditorias, ou mesmo alertas baseados em padrões.
+
+🔁 Quando a EEPROM atinge sua capacidade, o sistema reinicia a escrita de forma circular, mantendo o armazenamento funcional sem intervenção manual.
+
+Esse diferencial torna o sistema mais robusto, confiável e útil para aplicações reais onde a memória persistente é crítica para monitoramento de segurança.
+
 🧠 Estrutura de Dados da EEPROM
 A EEPROM armazena dados de forma sequencial, iniciando no endereço 3 (os endereços 0–2 são usados para marcação de inicialização e controle). Cada entrada de log ocupa espaço definido por uma estrutura (struct WaterLog), contendo:
 
@@ -61,8 +73,6 @@ timestamp (unsigned long): Momento da leitura.
 distance (int): Distância em centímetros.
 
 status (byte): Código do nível de risco (0 a 3).
-
-Quando a EEPROM atinge o fim, o sistema sobrescreve os dados do início (modo circular).
 
 🖥️ Interface com o Usuário
 Display LCD:
@@ -74,13 +84,3 @@ Linha 2: Estado atual ("Bom", "Alerta!", "Alto! Abaixar!", "CRITICO!")
 Monitor Serial:
 
 Exibe logs como: Nivel: 42cm - ALERTA
-
-📌 Considerações Técnicas
-O projeto utiliza a biblioteca LiquidCrystal_I2C para controle do LCD e EEPROM.h para gravação persistente de dados.
-
-O sistema implementa controle de frequência de escrita, evitando desgaste da EEPROM.
-
-O buzzer é ativado apenas em estados críticos para não causar alarmes desnecessários.
-
-O projeto pode ser alimentado por fonte externa ou USB.
-
